@@ -1,0 +1,49 @@
+%-----------------------------------------------------------------------------%
+\chapter{\babLima}
+%-----------------------------------------------------------------------------%
+
+Bab ini menyajikan rangkuman kesimpulan yang ditarik dari hasil penelitian yang telah dilaksanakan. Selain itu, dipaparkan pula serangkaian saran yang ditujukan untuk pengembangan penelitian di masa depan serta untuk implementasi praktis berdasarkan temuan-temuan yang diperoleh.
+
+%-----------------------------------------------------------------------------%
+\section{Kesimpulan}
+%-----------------------------------------------------------------------------%
+
+Berdasarkan analisis dan evaluasi yang telah dilaksanakan, penelitian ini menyimpulkan bahwa metode \textit{ensemble weighted averaging} yang diusulkan mampu meningkatkan performa deteksi \textit{deepfake} secara signifikan jika dibandingkan dengan performa model individual terbaik. Model \textit{ensemble} ini mencapai akurasi sebesar 99,64\% pada dataset pengujian, menunjukkan keunggulan 0,44\% atas model individual dengan performa tertinggi, yaitu Xception (99,20\%). Peningkatan ini dapat berdampak berarti terutama dalam konteks praktis deteksi \textit{deepfake} yang sensitif terhadap \textit{false negative}. Hal ini tercermin pada penurunan angka \textit{false negative} sebesar 78\% (dari 46 menjadi 10 kasus) dan \textit{false positive} sebesar 46.5\% (dari 114 menjadi 61 kasus).
+
+Implementasi metodologi \textit{ensemble weighted averaging} yang menggunakan formula perhitungan bobot berdasarkan Persamaan~\ref{eq:performance_weight} telah terbukti efektif dalam mengkombinasikan kekuatan dari berbagai arsitektur yang berbeda. Proses perhitungan bobot yang proporsional terhadap validation accuracy masing-masing model memastikan bahwa kontribusi setiap model terhadap prediksi akhir sesuai dengan kemampuannya, sebagaimana dijelaskan dalam contoh perhitungan pada Bab 3.
+
+Salah satu temuan penting dari penelitian ini adalah efektivitas arsitektur Custom CNN yang dirancang secara spesifik untuk tugas ini, yang berhasil mencapai akurasi 98,81\%. Performa ini mendekati arsitektur \textit{state-of-the-art} yang lebih kompleks seperti Xception. Hasil ini menggarisbawahi relevansi desain yang berorientasi pada domain spesifik (\textit{domain-specific design}) dalam \textit{deep learning}. Sebaliknya, arsitektur ResNet50 menunjukkan performa yang kurang optimal dengan akurasi 90,10\%, mengindikasikan bahwa tidak semua arsitektur \textit{pre-trained} mampu memberikan kinerja terbaik untuk tugas deteksi \textit{deepfake} tanpa adaptasi lebih lanjut.
+
+Distribusi bobot \textit{ensemble} yang relatif seimbang (berkisar antara 23,4\% hingga 25,8\%) mengafirmasi bahwa setiap model, termasuk ResNet50 yang berkinerja lebih rendah, memberikan kontribusi komplementer yang esensial terhadap keputusan akhir \textit{ensemble}. Analisis \textit{confusion matrix} menunjukkan bahwa perbedaan karakteristik kesalahan antar model individual memungkinkan \textit{ensemble} untuk mencapai keseimbangan yang lebih baik antara metrik Presisi (Persamaan~\ref{eq:precision}) dan Recall (Persamaan~\ref{eq:recall}), menghasilkan F1-Score (Persamaan~\ref{eq:f1score}) tertinggi sebesar 99,65\%.
+
+Meskipun demikian, penelitian ini mengidentifikasi keterbatasan signifikan terkait generalisasi model pada evaluasi \textit{cross-dataset}, di mana terjadi penurunan performa mencapai 50\%. Hal ini mengindikasikan adanya \textit{overfitting} terhadap karakteristik domain dataset pelatihan yang spesifik pada generator StyleGAN.
+
+Dengan demikian, validasi hipotesis memberikan hasil yang beragam: metode \textit{ensemble} terbukti efektif dalam meningkatkan akurasi dan menunjukkan komplementaritas model pada skenario \textit{single-dataset}, namun kemampuan generalisasinya masih terbatas. Kontribusi utama penelitian ini terletak pada validasi efektivitas metode \textit{ensemble} dalam skenario \textit{high-baseline}, analisis komplementaritas antar model dengan disparitas performa, implementasi sistem dengan metodologi yang transparan dan dapat direproduksi, serta penekanan pada tantangan generalisasi dalam aplikasi dunia nyata.
+
+%-----------------------------------------------------------------------------%
+\section{Saran}
+%-----------------------------------------------------------------------------%
+
+Berdasarkan temuan penelitian serta keterbatasan yang teridentifikasi, berikut adalah beberapa saran untuk pengembangan riset di masa depan dan implementasi praktis:
+
+\begin{enumerate}
+    \item \textbf{Peningkatan Generalisasi Model:} Direkomendasikan untuk melakukan pelatihan model menggunakan kombinasi beberapa dataset (misalnya, FaceForensics++, DFDC, CelebDF, dan WildDeepfake) guna meningkatkan kapabilitas generalisasi. Eksplorasi lebih lanjut terhadap teknik-teknik seperti \textit{unsupervised domain adaptation} (UDA) dan \textit{few-shot learning} dapat menjadi fokus untuk memungkinkan adaptasi model yang cepat terhadap domain data yang baru.
+
+    \item \textbf{Pengembangan \textit{Ensemble} Dinamis:} Penelitian selanjutnya dapat berfokus pada pengembangan metode \textit{ensemble} dinamis yang melampaui pendekatan \textit{weighted averaging} statis yang digunakan dalam penelitian ini. Sistem semacam ini akan secara adaptif memilih sub-himpunan model atau menyesuaikan bobot kontribusi berdasarkan karakteristik data masukan, misalnya melalui mekanisme seperti \textit{input-dependent model selection} atau \textit{confidence-based weighting}. Hal ini dapat mengoptimalkan formula pada Persamaan~\ref{eq:weighted_ensemble} dengan bobot yang bersifat dinamis.
+
+    \item \textbf{Optimisasi untuk Implementasi Praktis:} Untuk memfasilitasi penerapan di lingkungan produksi, disarankan untuk mengimplementasikan teknik \textit{knowledge distillation}. Teknik ini bertujuan mentransfer pengetahuan dari model \textit{ensemble} yang kompleks ke sebuah model tunggal yang lebih efisien. Selain itu, teknik kompresi model seperti \textit{pruning} dan \textit{quantization} perlu dieksplorasi untuk mengurangi beban komputasi tanpa degradasi akurasi yang signifikan.
+
+    \item \textbf{Evaluasi Robustisitas Komprehensif:} Perlu dilakukan pengujian yang lebih luas untuk mengevaluasi robustisitas sistem terhadap berbagai tantangan, termasuk serangan adversarial (\textit{adversarial attacks}), variasi kualitas dan tingkat kompresi citra, serta skenario penerapan di dunia nyata. Evaluasi ini harus mencakup analisis performa pada berbagai metrik yang telah didefinisikan dalam Persamaan~\ref{eq:accuracy} hingga \ref{eq:fnr} untuk memastikan keandalan sistem dalam kondisi operasional yang beragam.
+
+    \item \textbf{Analisis Lanjutan Model Individual:} Disarankan untuk melakukan investigasi mendalam terhadap performa model individual. Analisis ini dapat mencakup visualisasi \textit{feature map} untuk memahami penyebab kinerja ResNet50 yang kurang optimal, serta melakukan eksperimen dengan berbagai strategi \textit{fine-tuning}. Di sisi lain, studi ablasi (\textit{ablation study}) terhadap komponen arsitektur Custom CNN dapat memberikan wawasan mengenai faktor-faktor yang berkontribusi pada efektivitasnya yang tinggi.
+
+    \item \textbf{Pengembangan Metodologi Ensemble Lanjutan:} Berdasarkan keberhasilan implementasi \textit{weighted averaging} yang dijelaskan dalam kerangka metodologi penelitian, penelitian selanjutnya dapat mengeksplorasi metode ensemble yang lebih sophisticated seperti \textit{stacking}, \textit{boosting}, atau \textit{mixture of experts}. Setiap metode dapat dievaluasi menggunakan kerangka kerja yang sama untuk membandingkan efektivitasnya.
+
+    \item \textbf{Implementasi Pembelajaran Berkelanjutan (\textit{Continual Learning}):} Mengingat pesatnya evolusi teknik pembuatan \textit{deepfake}, perlu dikembangkan sebuah kerangka kerja pembelajaran berkelanjutan. Sistem ini harus mampu beradaptasi dan mempelajari pola-pola \textit{deepfake} baru secara inkremental tanpa mengalami \textit{catastrophic forgetting} terhadap pengetahuan yang telah dimiliki, sambil mempertahankan keseimbangan metrik evaluasi yang optimal.
+
+    \item \textbf{Pengembangan Aplikasi Dunia Nyata:} Sistem deteksi yang diusulkan dapat diintegrasikan ke dalam platform nyata, seperti sistem moderasi konten media sosial, platform verifikasi berita, atau alat analisis forensik digital. Proses integrasi ini harus mempertimbangkan aspek pengalaman pengguna (\textit{user experience}) dan menyertakan mekanisme pemantauan performa secara kontinu dalam lingkungan produksi. Implementasi harus mencakup pipeline lengkap sesuai dengan metodologi yang telah dikembangkan dalam penelitian ini.
+
+    \item \textbf{Pertimbangan Aspek Etis dan Keamanan:} Implementasi sistem harus diiringi dengan pertimbangan etis yang matang. Strategi mitigasi bias perlu diterapkan untuk mengurangi potensi diskriminasi demografis. Selain itu, teknik perlindungan privasi seperti \textit{federated learning} dan pengembangan kerangka kerja transparansi untuk melacak jejak audit (\textit{audit trail}) dari setiap keputusan deteksi menjadi krusial.
+
+    \item \textbf{Standardisasi Metrik dan Benchmarking:} Berdasarkan pengalaman dalam penelitian ini, disarankan untuk mengembangkan standar evaluasi yang konsisten dalam domain deteksi deepfake. Hal ini mencakup standardisasi penggunaan metrik evaluasi yang telah didefinisikan dalam Bab 2, protokol pengujian cross-dataset, dan benchmark yang dapat diandalkan untuk perbandingan yang adil antar metode yang berbeda.
+\end{enumerate}

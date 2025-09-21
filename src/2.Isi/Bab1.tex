@@ -1,0 +1,204 @@
+%-----------------------------------------------------------------------------%
+\chapter{PENDAHULUAN}
+%-----------------------------------------------------------------------------%
+
+%-----------------------------------------------------------------------------%
+\section{Latar Belakang Masalah}
+%-----------------------------------------------------------------------------%
+
+Perkembangan pesat teknologi kecerdasan buatan telah melahirkan berbagai inovasi dalam bidang pengolahan citra digital, salah satunya adalah teknologi \textit{deepfake}. Istilah \textit{deepfake}, yang merupakan lakuran dari frasa "\textit{deep learning}" dan "\textit{fake}", merujuk pada teknik manipulasi media yang menggunakan algoritma pembelajaran mendalam untuk menghasilkan konten audio dan visual sintetis yang tampak otentik \cite{rana2022deepfake}. Teknologi ini umumnya memanfaatkan arsitektur \textit{Generative Adversarial Networks} (GANs) untuk menciptakan representasi wajah yang sangat realistis dengan menggantikan identitas seseorang dalam sebuah video atau gambar \cite{goodfellow2014gan}.
+
+Kemunculan teknologi \textit{deepfake} pertama kali dipopulerkan oleh pengguna forum daring Reddit pada akhir tahun 2017. Pengguna tersebut mengaplikasikan metode \textit{deep learning} untuk memanipulasi wajah dalam konten video \cite{edwards2024}. Sejak saat itu, aksesibilitas terhadap teknologi ini terus meningkat seiring dengan berkembangnya berbagai aplikasi tingkat konsumen seperti FaceApp dan FaceSwap, yang memungkinkan pengguna awam untuk membuat konten \textit{deepfake} dengan mudah.
+
+Meskipun teknologi \textit{deepfake} memiliki potensi aplikasi positif dalam industri hiburan, pendidikan, dan simulasi medis, dampak negatifnya terhadap masyarakat telah menjadi sorotan utama. Penggunaan teknologi ini dengan niat jahat dapat menghasilkan konten yang menyesatkan, menyebarkan misinformasi, dan mengancam integritas digital \cite{dagar2022deepfake}. Salah satu kasus viral yang menunjukkan potensi destabilisasi sosial dan politik adalah video \textit{deepfake} Presiden Ukraina, Volodymyr Zelenskyy, yang seolah-olah menyerah kepada Rusia pada tahun 2022 \cite{tyagi2023analysis}.
+
+Mengingat ancaman serius yang ditimbulkan oleh \textit{deepfake}, pengembangan sistem deteksi yang akurat dan andal menjadi sebuah kebutuhan yang mendesak. Pendekatan deteksi \textit{deepfake} secara umum dapat dikategorikan menjadi tiga jenis: \textit{naive detectors} yang menggunakan arsitektur CNN sederhana, \textit{spatial detectors} yang mengeksplorasi artefak spasial, dan \textit{frequency detectors} yang menganalisis domain frekuensi \cite{verdoliva2020deepfake}. Namun, peningkatan kualitas \textit{deepfake} yang dihasilkan oleh teknik-teknik generasi terbaru menuntut pengembangan metode deteksi yang lebih canggih.
+
+Arsitektur \textit{deep learning} telah menunjukkan keunggulan signifikan dalam tugas deteksi \textit{deepfake} jika dibandingkan dengan metode konvensional yang berbasis pada fitur rekayasa tangan. Keunggulan ini terletak pada kemampuan model untuk mempelajari representasi fitur secara otomatis langsung dari data, sehingga memungkinkan adaptasi yang lebih baik terhadap berbagai teknik manipulasi \cite{lecun2015deep}. Berbagai arsitektur CNN termutakhir seperti ResNet \cite{he2016deep}, Xception \cite{szegedy2016rethinking}, dan EfficientNet \cite{tan2019efficientnet} telah diaplikasikan untuk deteksi \textit{deepfake} dengan hasil yang menjanjikan.
+
+\subsection{Tantangan dan Keterbatasan Model Tunggal}
+
+Meskipun model tunggal menunjukkan performa yang baik, penelitian menunjukkan bahwa model tersebut sering kali memiliki keterbatasan dalam melakukan generalisasi terhadap teknik-teknik manipulasi baru yang terus berkembang. Variasi dalam metode pembuatan \textit{deepfake}, kualitas set data, dan kondisi dunia nyata menuntut model deteksi untuk memiliki kemampuan generalisasi yang tinggi \cite{edwards2024}. 
+
+Penelitian terbaru menunjukkan bahwa berbagai metode deteksi \textit{deepfake} memiliki performa yang bervariasi pada dataset yang berbeda. Metode POI-DeepFake yang menggunakan ResNet50 menunjukkan konsistensi performa yang baik di berbagai dataset dengan akurasi berkisar 81,10\%-86,80\% \cite{cozzolino2023}. Sementara itu, pendekatan \textit{hybrid} seperti DCPT yang menggabungkan CNN dengan \textit{Vision Transformer} menunjukkan performa sangat baik pada dataset tertentu (92,11\% pada FF++) namun kurang konsisten pada dataset lainnya (63,27\% pada CelebDF) \cite{wang2023deep}.
+
+Penggunaan arsitektur \textit{Xception} dalam beberapa penelitian seperti Si-Net, ISTVT, dan FAAF menunjukkan performa yang konsisten dan kompetitif, dengan akurasi berkisar 94,54\%-99,85\% tergantung pada dataset evaluasi \cite{wang2023si,zhao2023,tian2023}. Model \textit{EfficientNet} juga menunjukkan keunggulan dalam hal efisiensi komputasi dengan performa yang kompetitif \cite{ke2023}. Namun, variabilitas performa ini mengindikasikan bahwa tidak ada satu arsitektur yang dominan untuk semua skenario, dan setiap model memiliki kelebihan dan kekurangan yang berbeda.
+
+\subsection{Potensi Ensemble Learning}
+
+Oleh karena itu, pendekatan \textit{ensemble learning} yang menggabungkan beberapa model dengan karakteristik yang saling melengkapi menjadi strategi yang menjanjikan untuk meningkatkan akurasi dan keandalan sistem deteksi. \textit{Ensemble learning} adalah sebuah teknik yang menggabungkan prediksi dari beberapa model dasar untuk menghasilkan keputusan akhir yang lebih akurat dan stabil dibandingkan model individual \cite{dietterich2000ensemble}. Dalam konteks deteksi \textit{deepfake}, metode ansambel dapat menutupi kelemahan model-model individual dan meningkatkan kemampuan deteksi terhadap berbagai jenis manipulasi.
+
+Penelitian terbaru menunjukkan bahwa ansambel dengan metode \textit{weighted averaging} memberikan kinerja yang unggul dalam deteksi \textit{deepfake} dibandingkan teknik ansambel konvensional. Metode ini menghitung kontribusi setiap model dasar berdasarkan kinerjanya pada set data validasi, sehingga model dengan akurasi lebih tinggi akan mendapatkan bobot yang lebih besar dalam pengambilan keputusan akhir. Pendekatan ini tidak hanya meningkatkan akurasi, tetapi juga memberikan interpretabilitas yang lebih baik mengenai kontribusi setiap model.
+
+\subsection{Pemilihan Arsitektur untuk Model Ensemble}
+
+Berdasarkan analisis literatur, kombinasi model-model dengan karakteristik arsitektur yang beragam dapat memberikan komplementaritas yang optimal untuk sebuah ansambel. Pemilihan arsitektur-arsitektur dalam penelitian ini didasarkan pada rekam jejak dan karakteristiknya yang saling melengkapi:
+
+\textit{Custom CNN} dirancang khusus untuk tugas deteksi dengan arsitektur hierarkis yang memanfaatkan karakteristik CNN dalam ekstraksi fitur lokal-ke-global. Model ini dapat mendeteksi inkonsistensi yang umum pada citra \textit{deepfake} melalui pembelajaran fitur dari level rendah hingga level tinggi.
+
+\textit{ResNet50} dengan mekanisme \textit{residual learning} telah terbukti andal dalam berbagai literatur ilmiah dan kompetisi pengolahan citra \cite{he2016deep}. Arsitektur ini menggunakan \textit{shortcut connections} yang memungkinkan pelatihan jaringan yang sangat dalam tanpa mengalami masalah \textit{vanishing gradient}.
+
+\textit{Xception} dengan \textit{depthwise separable convolutions} menawarkan pendekatan ekstraksi fitur yang efisien dengan memisahkan operasi konvolusi spatial dan \textit{channel-wise} \cite{chollet2017xception}. Pendekatan ini mengurangi kompleksitas komputasi sambil mempertahankan kemampuan representasi fitur yang kuat.
+
+\textit{EfficientNet} dengan \textit{compound scaling} menyeimbangkan kedalaman, lebar, dan resolusi input secara simultan, menghasilkan model yang efisien tanpa mengorbankan akurasi \cite{tan2019efficientnet}. Strategi ini mengoptimalkan performa sistem secara menyeluruh.
+
+Keragaman pendekatan ekstraksi fitur yang mereka tawarkan menjadi kunci utama dalam metode ansambel, di mana model-model dengan pola kesalahan yang berbeda cenderung dapat saling mengoreksi, sehingga berpotensi meningkatkan akurasi dan keandalan sistem deteksi secara keseluruhan.
+
+Pemilihan set data yang tepat juga merupakan faktor krusial dalam pengembangan sistem deteksi \textit{deepfake}. Set data "140k Real and Fake Faces" dipilih dalam penelitian ini karena menyediakan keseimbangan yang baik antara data asli dan sintetis, dengan standardisasi format yang konsisten serta keragaman yang memadai untuk proses pelatihan dan evaluasi yang andal.
+
+Oleh karena itu, penelitian ini bertujuan untuk mengembangkan dan mengevaluasi sistem deteksi \textit{deepfake} menggunakan metode \textit{ensemble weighted averaging} yang menggabungkan empat arsitektur \textit{deep learning} yang berbeda: Custom CNN, ResNet50, Xception, dan EfficientNet. Pendekatan ini diharapkan dapat memberikan kontribusi signifikan dalam peningkatan akurasi dan keandalan deteksi \textit{deepfake}, serta memberikan wawasan mengenai efektivitas metode ansambel dalam domain \textit{computer vision security}.
+
+%-----------------------------------------------------------------------------%
+\section{Rumusan Masalah}
+%-----------------------------------------------------------------------------%
+
+Berdasarkan latar belakang yang telah diuraikan, rumusan masalah dalam penelitian ini adalah sebagai berikut:
+
+\begin{enumerate}
+\item Bagaimanakah perbandingan kinerja metode \textit{ensemble learning} dengan teknik \textit{weighted averaging} dibandingkan dengan kinerja model-model individual dalam mengklasifikasikan citra \textit{deepfake}?
+
+\item Apakah metode ansambel menunjukkan kemampuan generalisasi pada skenario pengujian \textit{cross-dataset} yang secara signifikan lebih unggul dibandingkan dengan kemampuan generalisasi masing-masing model tunggal penyusunnya?
+\end{enumerate}
+
+%-----------------------------------------------------------------------------%
+\section{Batasan Masalah}
+%-----------------------------------------------------------------------------%
+
+Untuk menjaga agar penelitian ini tetap fokus dan terarah, ditetapkan beberapa batasan masalah sebagai berikut:
+
+\subsection{Batasan Set Data dan Pra-pemrosesan}
+\begin{enumerate}
+\item Penelitian ini hanya menggunakan set data "140k Real and Fake Faces" yang terdiri dari 140.000 citra wajah berformat JPEG dengan resolusi 256×256 piksel.
+
+\item Set data dibagi menjadi tiga bagian dengan rasio 100.000 untuk pelatihan, 20000 untuk validasi, dan 20000 untuk pengujian.
+
+\item Proses \textit{preprocessing} data terbatas pada normalisasi nilai piksel (penyekalaan ulang ke rentang 0–1) dan augmentasi data berupa pembalikan horizontal pada data pelatihan.
+
+\item Penelitian ini berfokus pada deteksi \textit{deepfake} berbasis citra statis dan tidak mencakup analisis pada sekuens video.
+\end{enumerate}
+
+\subsection{Batasan Arsitektur Model}
+\begin{enumerate}
+\item Model ansambel terdiri dari empat arsitektur: Custom CNN, ResNet50, Xception, dan EfficientNet-B4.
+
+\item Model ResNet50, Xception, dan EfficientNet memanfaatkan mekanisme \textit{transfer learning} dengan menggunakan bobot pra-terlatih dari set data ImageNet.
+
+\item Arsitektur Custom CNN dirancang dengan 4 blok konvolusional yang diikuti oleh lapisan terhubung penuh.
+
+\item Metode ansambel yang digunakan terbatas pada \textit{weighted averaging} yang bobotnya ditentukan berdasarkan akurasi validasi.
+\end{enumerate}
+
+\subsection{Batasan Evaluasi}
+\begin{enumerate}
+\item Metrik yang digunakan untuk evaluasi kinerja meliputi Akurasi, Presisi, Perolehan (\textit{Recall}), dan Skor-F1
+
+\item Evaluasi kinerja model dilakukan melalui dua skenario pengujian utama:
+\begin{itemize}
+    \item \textbf{Pengujian internal:} Menggunakan test set yang berasal dari partisi dataset utama "140k Real and Fake Faces" untuk mengukur performa model pada data dengan distribusi serupa.
+    \item \textbf{Pengujian Generalisasi (Cross-Dataset):} Menggunakan dataset eksternal "DeepFakeFace" untuk menguji kemampuan generalisasi dan robustisitas model terhadap data deepfake yang dibuat dengan teknik berbeda dan tidak pernah dilihat sebelumnya.
+\end{itemize}
+\end{enumerate}
+
+\subsection{Batasan Teknis}
+\begin{enumerate}
+\item Proses pelatihan model dilakukan menggunakan platform Google Colab Pro+ dengan GPU Nvidia T4 dan RAM 16 GB.
+
+\item Implementasi model menggunakan kerangka kerja TensorFlow/Keras dengan bahasa pemrograman Python 3.8+.
+
+\item Jumlah maksimum epoch pelatihan adalah 15, dengan mekanisme penghentian dini pada patience 3.
+\end{enumerate}
+
+%-----------------------------------------------------------------------------%
+\section{Tujuan Penelitian}
+%-----------------------------------------------------------------------------%
+
+Berdasarkan rumusan masalah yang telah ditetapkan, penelitian ini memiliki tujuan umum dan khusus sebagai berikut:
+
+\begin{enumerate}
+\item \textbf{Tujuan Umum:} \\
+Mengembangkan dan mengevaluasi sebuah sistem deteksi \textit{deepfake} berbasis \textit{ensemble learning} untuk menghasilkan metode klasifikasi yang tidak hanya akurat tetapi juga memiliki kemampuan generalisasi yang andal.
+
+\item \textbf{Tujuan Khusus:} \\
+Secara spesifik, penelitian ini bertujuan untuk:
+\begin{enumerate}
+    \item Membandingkan kinerja metode \textit{ensemble learning} dengan teknik \textit{weighted averaging} terhadap kinerja masing-masing model individual (Custom CNN, ResNet50, Xception, dan EfficientNet) dalam mengklasifikasikan citra \textit{deepfake}.
+    
+    \item Menguji apakah pendekatan ansambel menunjukkan kemampuan generalisasi yang secara signifikan lebih unggul dibandingkan dengan setiap model individual ketika dihadapkan pada skenario pengujian \textit{cross-dataset}.
+\end{enumerate}
+
+\item \textbf{Indikator Evaluasi dan Metode Pengukuran} \\
+Pencapaian tujuan penelitian ini akan dievaluasi menggunakan indikator-indikator berikut:
+
+\begin{enumerate}
+    \item \textbf{Peningkatan Akurasi}: Diukur melalui perbandingan nilai akurasi ensemble dengan model individual terbaik.
+    
+    \item \textbf{Konsistensi Metrik}: Evaluasi menggunakan empat metrik utama (Accuracy, Precision, Recall, F1-Score) pada dataset pengujian.
+    
+    \item \textbf{Kemampuan Generalisasi}: Diukur melalui pengujian cross-dataset menggunakan dataset eksternal (DeepFakeFace) dengan membandingkan penurunan performa ensemble vs model individual.
+    
+    \item \textbf{Komplementaritas Model}: Dianalisis melalui confusion matrix dan distribusi bobot ensemble untuk memvalidasi kontribusi setiap model.
+\end{enumerate}
+\end{enumerate}
+
+%-----------------------------------------------------------------------------%
+\section{Manfaat Penelitian}
+%-----------------------------------------------------------------------------%
+
+Penelitian ini diharapkan dapat memberikan manfaat pada berbagai aspek sebagai berikut:
+
+\subsection{Manfaat Teoritis}
+\begin{enumerate}
+    \item \textbf{Pengembangan Metode Ensemble}: Memberikan kontribusi pada pengembangan teknik \textit{weighted averaging} untuk meningkatkan akurasi sistem deteksi \textit{deepfake} secara signifikan.
+    
+    \item \textbf{Validasi Komplementaritas Model}: Membuktikan secara empiris bahwa kombinasi arsitektur CNN yang beragam dapat meningkatkan robustisitas deteksi dengan mengurangi \textit{false negative} dan \textit{false positive}.
+    
+    \item \textbf{Framework Evaluasi}: Menyediakan kerangka evaluasi komprehensif untuk sistem deteksi \textit{deepfake} yang mencakup pengujian \textit{cross-dataset} untuk mengukur kemampuan generalisasi.
+\end{enumerate}
+
+\subsection{Manfaat Praktis}
+\begin{enumerate}
+    \item \textbf{Peningkatan Akurasi Deteksi}: Sistem ensemble yang dihasilkan mencapai akurasi 99,64\%, meningkatkan kemampuan deteksi \textit{deepfake} untuk implementasi pada platform media sosial dan sistem verifikasi berita.
+    
+    \item \textbf{Optimalisasi Computational Trade-off}: Memberikan keseimbangan antara akurasi tinggi dan efisiensi komputasi melalui kombinasi model yang ter-optimasi.
+    
+    \item \textbf{Aplikabilitas Industri}: Menyediakan solusi praktis yang dapat diintegrasikan dalam sistem moderasi konten \textit{real-time} dan analisis forensik digital.
+\end{enumerate}
+
+\subsection{Manfaat Akademis}
+\begin{enumerate}
+    \item \textbf{Referensi dan Tolok Ukur (\textit{Benchmark})}: Menjadi referensi dan menyediakan tolok ukur kinerja (\textit{benchmark}) untuk implementasi metode \textit{ensemble weighted averaging} pada tugas deteksi \textit{deepfake}, yang dapat dimanfaatkan oleh komunitas akademik untuk penelitian selanjutnya.
+    
+    \item \textbf{Dasar Pengembangan Lanjutan}: Menyediakan dasar dan wawasan untuk pengembangan metode deteksi \textit{deepfake} yang lebih maju, khususnya dalam eksplorasi arsitektur yang komplementer dan teknik ansambel yang lebih canggih.
+\end{enumerate}
+
+\subsection{Manfaat Sosial}
+\begin{enumerate}
+    \item \textbf{Literasi Media}: Berkontribusi pada upaya peningkatan kemampuan masyarakat untuk mengidentifikasi konten manipulatif di era digital.
+    
+    \item \textbf{Integritas Informasi}: Mendukung terjaganya kebenaran dan kepercayaan dalam ekosistem informasi digital melalui teknologi deteksi yang canggih.
+    
+    \item \textbf{Pengembangan AI yang Etis}: Memberikan contoh penggunaan kecerdasan buatan untuk tujuan defensif dan protektif, menyeimbangkan kemajuan teknologi generatif dengan kapabilitas untuk memitigasi risikonya.
+\end{enumerate}
+
+%-----------------------------------------------------------------------------%
+\section{Sistematika Penulisan}
+%-----------------------------------------------------------------------------%
+
+Laporan penelitian ini disusun secara sistematis dan logis untuk memberikan pemahaman yang komprehensif mengenai penelitian yang dilakukan. Struktur penulisan terdiri dari lima bab utama dengan rincian sebagai berikut:
+
+\begin{itemize}
+\item \textbf{Bab I - PENDAHULUAN}
+Bab ini menguraikan latar belakang yang menjelaskan urgensi pengembangan sistem deteksi \textit{deepfake}, rumusan masalah, batasan-batasan penelitian, tujuan yang ingin dicapai, manfaat teoretis dan praktis, serta sistematika penulisan laporan.
+
+\item \textbf{Bab II - TINJAUAN PUSTAKA}
+Bab ini menyajikan tinjauan pustaka dan landasan teori yang relevan, mencakup konsep fundamental kecerdasan buatan dan \textit{deep learning}, teknologi \textit{deepfake} dan \textit{Generative Adversarial Networks}, arsitektur \textit{deep learning} yang digunakan (CNN, ResNet, Xception, EfficientNet), teori \textit{ensemble learning} dan \textit{weighted averaging}, serta metrik evaluasi yang komprehensif.
+
+\item \textbf{Bab III - METODOLOGI PENELITIAN}
+Bab ini menjelaskan metodologi penelitian secara terperinci, meliputi desain penelitian dan alur kerja eksperimen, karakteristik dan proses pra-pemrosesan set data, arsitektur dan konfigurasi setiap model individual, implementasi metode \textit{ensemble weighted averaging}, prosedur pelatihan dan penalaan hiperparameter, serta lingkungan komputasi dan reprodusibilitas.
+
+\item \textbf{Bab IV - HASIL DAN PEMBAHASAN}
+Bab ini menyajikan hasil eksperimen beserta pembahasan yang komprehensif. Cakupannya meliputi analisis kinerja setiap model \textit{deep learning} secara individual, hasil implementasi sistem ansambel, perbandingan kuantitatif antara pendekatan individual dan ansambel, analisis kontribusi dan komplementaritas antar model, interpretasi hasil dalam konteks metode termutakhir, serta pembahasan mengenai limitasi dan implikasi dari temuan penelitian.
+
+\item \textbf{Bab V - KESIMPULAN DAN SARAN}
+Bab ini berisi kesimpulan penelitian yang menjawab rumusan masalah berdasarkan hasil eksperimen, menguraikan kontribusi ilmiah yang dihasilkan, mengidentifikasi keterbatasan penelitian, serta memberikan saran untuk pengembangan penelitian selanjutnya dan implementasi praktis dalam aplikasi dunia nyata.
+\end{itemize}
