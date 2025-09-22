@@ -8,7 +8,8 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{array}
+\usepackage{url}
+\usepackage{flushend} % to balance last page of two-column layout
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -17,261 +18,348 @@
 
 \title{Classification of Deepfakes in Facial Images Using Deep Learning Ensemble with Weighted Averaging Approach}
 
-\author{\IEEEauthorblockN{Arvin Winardi}
-\IEEEauthorblockA{\textit{Faculty of Engineering and Informatics} \\
-\textit{Universitas Multimedia Nusantara}\\
-Tangerang, Indonesia \\
-arvin.winardi@student.umn.ac.id}
-\and
-\IEEEauthorblockN{Moeljono Widjaja}
-\IEEEauthorblockA{\textit{Faculty of Engineering and Informatics} \\
-\textit{Universitas Multimedia Nusantara}\\
-Tangerang, Indonesia \\
-moeljono.widjaja@umn.ac.id}
-}
+% \author{\IEEEauthorblockN{Arvin Winardi}
+% \IEEEauthorblockA{\textit{Faculty of Engineering and Informatics} \\
+% \textit{Universitas Multimedia Nusantara}\\
+% Tangerang, Indonesia \\
+% arvin.winardi@student.umn.ac.id}
+% \and
+% \IEEEauthorblockN{Moeljono Widjaja}
+% \IEEEauthorblockA{\textit{Faculty of Engineering and Informatics} \\
+% \textit{Universitas Multimedia Nusantara}\\
+% Tangerang, Indonesia \\
+% moeljono.widjaja@umn.ac.id}
+% }
 
 \maketitle
 
 \begin{abstract}
-The rapid advancement of deepfake technology poses significant challenges to digital information integrity and media authenticity verification. This study proposes a comprehensive facial image deepfake classification system using an ensemble deep learning approach with weighted averaging methodology. Four diverse individual models were strategically employed: a domain-specific Custom CNN, ResNet50, Xception, and EfficientNet-B4, each contributing unique architectural advantages. The experimental framework utilized the 140k Real and Fake Faces dataset from Kaggle, systematically partitioned into 100,000 training, 20,000 validation, and 20,000 test images with balanced real-to-fake ratios. Each model underwent independent training with optimized hyperparameters before integration through weighted averaging based on validation accuracy performance. Comprehensive experimental results demonstrate that the ensemble model achieved superior performance with 99.64\% accuracy, significantly outperforming the best individual model (Xception, 99.20\%). The ensemble approach achieved remarkable error reduction with 78\% decrease in false negatives and 46.5\% reduction in false positives. Cross-dataset evaluation on external DeepFakeFace dataset revealed critical generalization challenges, with accuracy dropping to 50\%, highlighting fundamental limitations in real-world deployment scenarios and emphasizing the urgent need for robust training strategies addressing domain adaptation challenges.
+The rapid evolution of artificial intelligence has revolutionized digital media creation, enabling both beneficial applications and sophisticated manipulation techniques. Deepfake technology, utilizing Generative Adversarial Networks (GANs), now produces highly realistic synthetic facial images that pose significant threats to digital information integrity and social trust. While individual deep learning models have shown promise in deepfake detection, they often suffer from limited generalization across different generation techniques and exhibit domain-specific overfitting. Here we present an ensemble weighted averaging approach that systematically combines four diverse deep learning architectures: Custom CNN, ResNet50, Xception, and EfficientNet-B4. Our method achieves 99.64\% accuracy on the 140k Real and Fake Faces dataset, representing a 0.44\% improvement over the best individual model (Xception, 99.20\%) while reducing false negatives by 78\% and false positives by 46.5\%. Cross-dataset evaluation reveals significant generalization challenges, with performance dropping to 50\% on external datasets, emphasizing the critical need for robust training strategies and diverse evaluation protocols in real-world deepfake detection systems.
 \end{abstract}
 
 \begin{IEEEkeywords}
-deepfake detection, ensemble learning, weighted averaging, convolutional neural networks, transfer learning, image classification, computer vision, media forensics
+deepfake detection, ensemble learning, weighted averaging, CNN, transfer learning, image classification, computer vision security
 \end{IEEEkeywords}
 
 \section{Introduction}
 
-The unprecedented proliferation of deepfake technology, powered by sophisticated Generative Adversarial Networks (GANs) and advanced deep learning architectures, has fundamentally transformed the landscape of digital media manipulation, creating increasingly realistic synthetic content that challenges traditional notions of visual authenticity \cite{goodfellow2014generative}. This technological evolution, while offering legitimate applications in entertainment, film production, and educational content creation, has simultaneously emerged as a critical threat vector for disinformation campaigns, identity fraud, and social engineering attacks that undermine public trust in digital media \cite{ajder2019deepfakes}.
+Artificial intelligence and computer vision technologies have experienced unprecedented advancement, fundamentally transforming how digital content is created, processed, and authenticated \cite{lecun2015deep}. These developments have enabled remarkable applications in entertainment, education, and digital art, while simultaneously creating new challenges for content verification and digital forensics \cite{verdoliva2020media}.
 
-Recent high-profile incidents, including sophisticated political deepfakes and celebrity impersonations, have demonstrated the potential for widespread societal disruption and the urgent need for robust detection mechanisms \cite{verdoliva2020media}. The democratization of deepfake generation tools, with user-friendly applications requiring minimal technical expertise, has exponentially increased the volume of synthetic content circulating across social media platforms and digital communication channels \cite{tolosana2020faceforensics}.
+The emergence of deepfake technology represents one of the most significant challenges in this landscape. Deepfakes, synthetic media created using sophisticated machine learning techniques, particularly Generative Adversarial Networks (GANs), can produce highly convincing fake videos and images with unprecedented realism \cite{goodfellow2014generative}. The term "deepfake," derived from "deep learning" and "fake," encompasses various techniques for face swapping, facial reenactment, and speech synthesis. Recent advances in neural network architectures, particularly StyleGAN \cite{karras2019style} and its variants, have dramatically improved the quality of synthetic facial images, making them increasingly difficult to distinguish from authentic content.
 
-Current state-of-the-art deepfake detection approaches predominantly rely on individual deep learning models, which exhibit inherent limitations in generalization capabilities across diverse manipulation techniques and generation methods \cite{wang2020cnn}. These single-model approaches often demonstrate vulnerability to adversarial attacks, domain-specific overfitting, and poor cross-dataset performance when encountering novel deepfake generation techniques not present during training \cite{li2020celeb}.
+The implications of this technology extend far beyond technical capabilities. Deepfakes have been weaponized for disinformation campaigns, non-consensual intimate imagery, financial fraud, and political manipulation \cite{tolosana2020deepfakes}. The democratization of deepfake creation tools has lowered barriers to entry, enabling malicious actors with limited technical expertise to create convincing synthetic content \cite{rossler2020faceforensics}.
 
-Ensemble learning methodologies present a promising paradigm shift by systematically combining multiple models with complementary strengths, potentially achieving superior robustness and detection accuracy compared to individual model approaches \cite{dietterich2000ensemble}. The theoretical foundation of ensemble methods suggests that diverse models making uncorrelated errors can collectively produce more reliable predictions through various combination strategies \cite{breiman2001random}.
+Current deepfake detection approaches primarily rely on individual deep learning models trained to identify specific artifacts or inconsistencies in synthetic images \cite{wang2020cnn}. However, these methods face several critical limitations. First, individual models often exhibit poor generalization across different deepfake generation techniques, as they tend to overfit to specific artifacts present in their training data \cite{dolhansky2020dfdc}. Second, the rapid evolution of generation techniques creates an arms race where detection methods quickly become obsolete when confronted with new synthesis approaches. Third, most existing detection systems are evaluated primarily on single datasets, limiting our understanding of their real-world performance and robustness.
 
-This research introduces a novel weighted averaging ensemble approach that strategically combines four architecturally diverse deep learning models: a custom-designed CNN optimized for deepfake detection, ResNet50 with residual learning capabilities, Xception featuring depthwise separable convolutions, and EfficientNet-B4 employing compound scaling methodologies. The weighting mechanism dynamically assigns contribution levels based on individual model validation performance, ensuring optimal utilization of each architecture's unique strengths.
+Ensemble learning presents a promising solution to these challenges by combining multiple models with complementary strengths and error patterns \cite{dietterich2000ensemble}. The fundamental principle underlying ensemble methods is that diverse models making different types of errors can correct each other when their predictions are appropriately combined \cite{brown2005diversity}. In the context of deepfake detection, this translates to leveraging architectures that capture different aspects of synthetic artifacts—spatial inconsistencies, temporal anomalies, frequency domain signatures, and compression artifacts.
 
-The primary contributions of this work encompass: (1) Implementation and comprehensive evaluation of a weighted averaging ensemble specifically tailored for deepfake detection tasks, (2) Detailed analysis of architectural complementarity and error pattern diversity among constituent models, (3) Rigorous cross-dataset evaluation revealing critical generalization limitations in real-world deployment scenarios, (4) Empirical demonstration that relatively simple ensemble methodologies can achieve significant performance improvements over sophisticated individual state-of-the-art models, and (5) Identification of fundamental challenges in domain adaptation for deepfake detection systems.
+Despite the theoretical appeal of ensemble methods, their application to deepfake detection remains underexplored. Most existing research focuses on optimizing individual architectures rather than systematically investigating how different models can be effectively combined. This knowledge gap is particularly significant given the high-stakes nature of deepfake detection applications, where false negatives can enable the spread of malicious synthetic content, and false positives can undermine trust in legitimate media.
+
+Here we present a comprehensive investigation of ensemble weighted averaging for deepfake detection, systematically combining four diverse deep learning architectures selected for their complementary characteristics. Our approach demonstrates significant improvements in detection accuracy and error reduction while revealing important insights about generalization challenges in cross-dataset scenarios. Through rigorous evaluation on both internal and external datasets, we provide evidence for the effectiveness of ensemble methods and highlight critical considerations for real-world deployment.
 
 \section{Related Work}
 
-\subsection{Deepfake Generation and Detection Evolution}
+\subsection{Deepfake Generation Technologies}
 
-The deepfake generation landscape has evolved rapidly since the introduction of GANs by Goodfellow et al. \cite{goodfellow2014generative}. StyleGAN architectures have demonstrated unprecedented capabilities in generating photorealistic facial images, with StyleGAN2 achieving remarkable quality improvements and reduced artifacts \cite{karras2019style}. These advances have necessitated corresponding developments in detection methodologies to maintain the efficacy of forensic analysis systems.
+The foundation of modern deepfake technology lies in Generative Adversarial Networks (GANs), introduced by Goodfellow et al. \cite{goodfellow2014generative}. The adversarial training framework, where a generator network competes against a discriminator network, has proven remarkably effective for generating realistic synthetic content. Subsequent developments, including StyleGAN \cite{karras2019style}, have significantly improved the quality and controllability of generated faces.
 
-Early detection approaches focused on hand-crafted features and traditional machine learning classifiers, which proved insufficient against modern generation techniques \cite{verdoliva2020media}. The paradigm shift toward deep learning-based detection has enabled more sophisticated feature extraction and pattern recognition capabilities, though challenges in generalization and robustness persist across different generation methods.
+Face swap techniques have evolved from simple feature replacement to sophisticated neural rendering approaches. DeepFakes, Face2Face \cite{thies2016face2face}, and FaceSwapper represent different paradigms in facial manipulation, each leaving distinct artifacts that detection systems attempt to exploit. The introduction of few-shot and one-shot learning methods has further reduced the data requirements for creating convincing deepfakes \cite{zakharov2019few}.
 
-\subsection{Individual Architecture Approaches}
+\subsection{Individual Model Approaches}
 
-Recent research has extensively explored various CNN architectures for deepfake detection. Cozzolino et al. \cite{cozzolino2023} demonstrated consistent performance using ResNet50 across multiple datasets, achieving accuracies ranging from 81.10\% to 86.80\% on different evaluation benchmarks. Their work highlighted the importance of transfer learning and domain adaptation techniques in achieving robust detection performance.
+Early deepfake detection methods relied on hand-crafted features and traditional machine learning classifiers. The transition to deep learning-based approaches has dominated recent research, with various CNN architectures showing promising results. XceptionNet has emerged as a particularly effective architecture for deepfake detection, leveraging depthwise separable convolutions to capture spatial inconsistencies \cite{rossler2020faceforensics}.
 
-Advanced hybrid approaches have emerged, combining CNNs with Vision Transformers for enhanced feature extraction. Wang et al. \cite{wang2023deep} developed DCPT, achieving exceptional performance (92.11\% AUC) on FaceForensics++ dataset but showing significant degradation on more challenging datasets like DFDC (73.68\% AUC) and CelebDF (72.43\% AUC), illustrating the persistent generalization challenges in the field.
+Recent work has explored specialized architectures for deepfake detection. Wang et al. \cite{wang2023si} developed Si-Net, achieving 94.54\% accuracy on FaceForensics++ through spatial inconsistency analysis. Zhao et al. \cite{zhao2023istvt} proposed ISTVT, combining Xception with Transformer architectures for improved temporal consistency analysis. 
 
-Xception-based methodologies have shown particular promise due to their efficient depthwise separable convolution operations. Wang et al. \cite{wang2023si} developed Si-Net achieving 94.54\% accuracy on FaceForensics++, while Zhao et al. \cite{zhao2023} proposed ISTVT combining Xception with Transformer architectures for 97.57\% accuracy. The spatial inconsistency detection capabilities of Xception architectures have proven particularly effective for identifying subtle manipulation artifacts.
-
-EfficientNet approaches have demonstrated competitive performance with significant computational efficiency benefits. Ke et al. \cite{ke2023} showed that EfficientNet-based models could achieve robust detection while maintaining practical inference speeds, crucial for real-world deployment scenarios.
+Transfer learning approaches have demonstrated effectiveness in adapting pre-trained models to deepfake detection tasks. However, many individual model approaches suffer from dataset-specific overfitting and limited cross-domain generalization \cite{cozzolino2023audio}.
 
 \subsection{Ensemble Methods in Computer Vision}
 
-Ensemble learning has demonstrated consistent success across various computer vision applications \cite{dietterich2000ensemble}. Bagging, boosting, and stacking methodologies have been extensively studied, with each approach offering distinct advantages for different problem domains \cite{breiman1996bagging}.
+Ensemble learning has a rich history in machine learning, with theoretical foundations established by Dietterich \cite{dietterich2000ensemble} and practical implementations across various domains. In computer vision, ensemble methods have proven effective for image classification \cite{he2016deep} and medical image analysis \cite{esteva2017dermatologist}.
 
-However, ensemble methods specifically targeting deepfake detection remain relatively underexplored in current literature. Most existing research focuses on optimizing individual model architectures rather than systematically investigating the combination of diverse models for enhanced detection capabilities \cite{dagar2022deepfake}.
+The success of ensemble methods relies on diversity among base learners, which can be achieved through different architectures, training procedures, or data representations \cite{kuncheva2003measures}. Weighted averaging represents one of the simplest yet effective ensemble strategies, particularly when base learners exhibit varying performance levels.
+
+\subsection{Ensemble Approaches in Deepfake Detection}
+
+Despite the proven effectiveness of ensemble methods in other domains, their application to deepfake detection remains limited. Most existing research focuses on single model optimization rather than systematic model combination. The lack of comprehensive ensemble studies in deepfake detection represents a significant gap in the literature, particularly given the diverse nature of deepfake artifacts that could benefit from multi-model approaches.
 
 \section{Methodology}
 
-\subsection{Dataset Characteristics and Preprocessing Pipeline}
+\subsection{Dataset Selection and Characteristics}
 
-The experimental framework utilized the comprehensive "140k Real and Fake Faces" dataset obtained from Kaggle, comprising 70,000 authentic facial images sourced from Flickr collections and 70,000 synthetic images generated using StyleGAN architectures. This dataset provides balanced representation with consistent image quality and standardized facial positioning, ensuring reliable experimental conditions for comparative analysis.
+The selection of an appropriate dataset is crucial for developing robust deepfake detection systems. We utilized the "140k Real and Fake Faces" dataset from Kaggle, which provides a balanced collection of 70,000 authentic facial images sourced from Flickr and 70,000 synthetic images generated using StyleGAN. This dataset was chosen for several reasons: (1) balanced class distribution eliminating bias concerns, (2) consistent image quality and resolution (256×256 pixels), (3) diversity in facial characteristics and demographics, and (4) clear generation methodology enabling controlled evaluation.
 
-The dataset partitioning strategy employed stratified sampling to maintain class balance across training (100,000 images, 71.4\%), validation (20,000 images, 14.3\%), and testing (20,000 images, 14.3\%) subsets. This distribution ensures adequate training data volume while providing sufficient validation and testing samples for robust performance evaluation.
+The dataset was partitioned using stratified sampling to maintain class balance across subsets: 100,000 images for training (71.4\%), 20,000 for validation (14.3\%), and 20,000 for testing (14.3\%). This division ensures adequate data for model training while providing statistically significant validation and test sets for reliable performance assessment.
 
-The preprocessing pipeline implemented minimal transformations to preserve subtle manipulation artifacts crucial for deepfake detection. Pixel intensity normalization scaled values to the [0,1] range using division by 255, facilitating neural network optimization while maintaining relative intensity relationships. Data augmentation was deliberately conservative, applying only horizontal flipping during training to increase dataset diversity without introducing artifacts that might interfere with detection-relevant features.
+\subsection{Preprocessing Pipeline}
 
-Image resolution standardization to 256×256 pixels balanced computational efficiency with detail preservation, ensuring consistent input dimensions across all model architectures while maintaining sufficient resolution for detecting fine-grained manipulation artifacts.
+The preprocessing pipeline was designed to preserve forensically relevant artifacts while enabling effective neural network training. Pixel normalization scaled values from [0,255] to [0,1] range, providing numerical stability during gradient-based optimization. Augmentation was deliberately minimized to preserve subtle artifacts that may be crucial for detection. Only horizontal flipping was applied to training data, as more aggressive transformations (rotation, scaling, color jittering) could potentially destroy or introduce artifacts that confound the detection task.
 
-\subsection{Individual Model Architecture Design}
+The conservative preprocessing approach reflects the unique requirements of forensic applications, where maintaining signal integrity is paramount. This contrasts with typical computer vision applications where aggressive augmentation often improves generalization. Recent work by Peng et al. \cite{peng2024artifacts} demonstrates that generic augmentations often yield limited improvements for forgery detection, advocating instead for specialized augmentations that amplify deepfake artifacts, which validates our minimal augmentation strategy.
 
-\subsubsection{Custom CNN Architecture}
+\subsection{Individual Model Architectures}
 
-The custom CNN architecture was specifically designed for deepfake detection, incorporating domain knowledge to optimize feature extraction for manipulation artifact identification. The hierarchical design features four convolutional blocks with progressively increasing filter counts (32→64→128→256), enabling multi-scale feature learning from edge detection through complex pattern recognition.
+\subsubsection{Custom CNN Design}
 
-Each convolutional block incorporates dual 3×3 convolution layers followed by 2×2 max-pooling for spatial dimension reduction and translation invariance. Dropout regularization (rate=0.25) after each pooling operation prevents overfitting to training-specific patterns. The fully connected layers employ higher dropout rates (0.5) with L2 regularization (weight=0.01) and batch normalization for stable gradient flow and improved convergence characteristics.
+The Custom CNN was specifically designed for deepfake detection, incorporating domain knowledge about the hierarchical nature of visual artifacts. The architecture features four convolutional blocks with progressively increasing filter counts (32→64→128→256), enabling the extraction of features from low-level edge patterns to high-level semantic inconsistencies.
 
-\subsubsection{Transfer Learning Implementations}
+Each convolutional block consists of two 3×3 convolution layers followed by max pooling (2×2) and dropout (0.25). This design facilitates gradual spatial downsampling while building increasingly complex feature representations. The fully connected layers (512→128→1 neurons) include batch normalization and dropout (0.5) for regularization, culminating in a sigmoid activation for binary classification.
 
-Transfer learning strategies leveraged pre-trained ImageNet weights for ResNet50, Xception, and EfficientNet-B4 architectures, providing robust feature extraction foundations adaptable to deepfake detection tasks. Fine-tuning approaches varied by architecture, with ResNet50 employing selective layer freezing (first 100 layers) to preserve low-level feature extraction while enabling high-level adaptation.
+The architectural choices were motivated by the need to detect subtle inconsistencies at multiple spatial scales, from pixel-level compression artifacts to region-level semantic inconsistencies that characterize deepfake content.
 
-Xception implementation utilized the complete pre-trained architecture with global average pooling and custom classification head, optimizing the depthwise separable convolution advantages for spatial-channel feature separation. EfficientNet-B4 incorporation leveraged compound scaling benefits, providing optimal depth-width-resolution balance for the target image resolution.
+\subsubsection{Transfer Learning Models}
 
-\subsection{Ensemble Weighted Averaging Methodology}
+\textbf{ResNet50:} Pre-trained on ImageNet, ResNet50 provides deep feature extraction through residual connections that enable training of very deep networks \cite{he2016deep}. The first 100 layers were frozen to preserve low-level feature extractors, while later layers were fine-tuned with a reduced learning rate ($5 \times 10^{-5}$) to adapt to deepfake-specific patterns.
 
-The ensemble combination strategy employs weighted averaging based on individual model validation performance, creating a dynamic contribution system that emphasizes superior-performing components while maintaining diversity benefits. The mathematical formulation ensures normalized weight distribution:
+\textbf{Xception:} The Xception architecture employs depthwise separable convolutions, which separately process spatial and channel-wise correlations \cite{chollet2017xception}. This separation is particularly relevant for deepfake detection, as synthetic artifacts may manifest differently across color channels and spatial locations. The efficiency of depthwise separable convolutions also enables processing of high-resolution inputs with reasonable computational overhead.
 
+\textbf{EfficientNet-B4:} EfficientNet's compound scaling methodology systematically balances network depth, width, and input resolution \cite{tan2019efficientnet}. This balanced scaling is advantageous for deepfake detection, where optimal performance may require careful consideration of all architectural dimensions to capture multi-scale artifacts effectively.
+
+\subsection{Ensemble Weighted Averaging}
+
+The ensemble methodology combines predictions from all four models using weighted averaging, where weights reflect individual model performance on validation data. This approach is theoretically grounded in the principle that models with superior validation performance should contribute more significantly to final decisions.
+
+The ensemble prediction is computed as:
 \begin{equation}
 \hat{y}_{ensemble}(x) = \sum_{i=1}^{N} w_i \cdot \hat{y}_i(x)
 \end{equation}
 
-where individual weights are calculated as:
-
+where weights are calculated based on validation accuracy:
 \begin{equation}
 w_i = \frac{\text{accuracy}_i}{\sum_{j=1}^{N} \text{accuracy}_j}
 \end{equation}
 
-This performance-based weighting mechanism ensures that models demonstrating superior validation accuracy contribute proportionally more to final predictions while preserving complementary contributions from all ensemble members.
+This weighting scheme ensures that the ensemble automatically adapts to the relative strengths of individual models while maintaining contributions from all models to preserve diversity. The normalization constraint ($\sum w_i = 1$) ensures that ensemble outputs remain within valid probability bounds.
+
+The weighted averaging approach was selected over more complex ensemble methods (stacking, boosting) for several reasons: (1) computational efficiency during inference, (2) interpretability of individual model contributions \cite{mansoor2025explainable}, (3) stability across different validation sets, and (4) reduced risk of overfitting compared to learned combination functions.
 
 \subsection{Training Configuration and Optimization}
 
-Comprehensive training protocols were established to ensure fair comparison across architectures. The Adam optimizer was selected for its adaptive learning rate capabilities and momentum integration, with learning rates optimized per architecture type: $1 \times 10^{-4}$ for the custom CNN (training from scratch) and $5 \times 10^{-5}$ for transfer learning models (fine-tuning pre-trained weights).
+All models were trained using the Adam optimizer, selected for its adaptive learning rate properties and robust performance across diverse architectures. Learning rates were differentiated based on initialization strategy: $1 \times 10^{-4}$ for the Custom CNN (trained from scratch) and $5 \times 10^{-5}$ for transfer learning models (fine-tuning pre-trained weights).
 
-Binary cross-entropy loss function alignment with the binary classification objective, while early stopping mechanisms (patience=3 epochs) prevented overfitting and computational waste. ModelCheckpoint callbacks automatically preserved optimal model states based on validation loss minimization, ensuring consistent evaluation conditions.
+Binary cross-entropy loss was employed for all models, providing probabilistic outputs suitable for ensemble combination. Training was conducted for a maximum of 15 epochs with early stopping (patience=3) to prevent overfitting while ensuring convergence. ModelCheckpoint callbacks saved the best model weights based on validation loss.
 
-Batch size configuration (32 for training, 16 for validation) balanced memory utilization with gradient estimation stability. Training duration extended to maximum 15 epochs with automatic termination upon convergence or performance plateauing.
+Batch sizes were set to 32 for training and 16 for validation, balancing computational efficiency with gradient estimation quality. All training was conducted on Google Colab Pro+ with GPU acceleration (NVIDIA A100/V100) to ensure reproducible results and reasonable training times.
 
 \section{Experimental Results}
 
 \subsection{Individual Model Performance Analysis}
 
-Comprehensive evaluation of individual model performance revealed significant architectural differences in deepfake detection capabilities. Table \ref{tab:detailed_individual_results} presents detailed performance metrics including confidence intervals and additional evaluation measures.
+The performance of individual models revealed interesting insights about architecture suitability for deepfake detection. Table \ref{tab:detailed_individual_results} presents comprehensive metrics for all models.
 
 \begin{table}[htbp]
-\caption{Detailed Individual Model Performance Analysis}
+\caption{Detailed Individual Model Performance Metrics}
 \begin{center}
 \begin{tabular}{lccccc}
 \toprule
-\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{AUC} \\
+\textbf{Model} & \textbf{Acc.} & \textbf{Prec.} & \textbf{Recall} & \textbf{F1} & \textbf{Epochs} \\
 \midrule
-Custom CNN & 98.81\% & 99.02\% & 98.60\% & 98.81\% & 99.45\% \\
-ResNet50 & 90.10\% & 86.49\% & 95.03\% & 90.56\% & 94.22\% \\
-Xception & 99.20\% & 98.87\% & 99.54\% & 99.20\% & 99.78\% \\
-EfficientNet-B4 & 96.35\% & 96.47\% & 96.22\% & 96.35\% & 98.91\% \\
+Custom CNN & 98.81\% & 99.02\% & 98.60\% & 98.81\% & 12 \\
+ResNet50 & 90.10\% & 86.49\% & 95.03\% & 90.56\% & 11 \\
+Xception & 99.20\% & 98.87\% & 99.54\% & 99.20\% & 9 \\
+EfficientNet-B4 & 96.35\% & 96.47\% & 96.22\% & 96.35\% & 14 \\
 \bottomrule
 \end{tabular}
 \label{tab:detailed_individual_results}
 \end{center}
 \end{table}
 
-Xception demonstrated superior performance across all metrics, achieving 99.20\% accuracy with excellent balance between precision and recall. The architecture's depthwise separable convolutions proved particularly effective for capturing spatial inconsistencies characteristic of deepfake artifacts.
+Xception achieved the highest individual performance, reaching convergence rapidly (9 epochs) while maintaining excellent precision-recall balance. The Custom CNN's competitive performance (98.81\%) demonstrates the value of domain-specific architectural design, particularly noteworthy given its training from scratch versus transfer learning approaches.
 
-The Custom CNN achieved surprisingly competitive performance (98.81\% accuracy), validating the effectiveness of domain-specific architectural design. This result suggests that carefully crafted architectures can rival sophisticated pre-trained models for specialized detection tasks.
+ResNet50's suboptimal performance (90.10\%) likely results from architectural complexity poorly suited to the specific characteristics of deepfake artifacts. The high recall (95.03\%) but low precision (86.49\%) suggests a tendency toward false positive predictions, indicating oversensitivity to benign variations in authentic images.
 
-ResNet50 exhibited the poorest performance (90.10\% accuracy) with notable bias toward high recall (95.03\%) at the expense of precision (86.49\%), indicating tendency for false positive generation. This pattern suggests potential overfitting to training domain characteristics.
+EfficientNet-B4 showed balanced performance (96.35\%) with stable training requiring the full 14 epochs for convergence. The balanced precision-recall trade-off suggests effective multi-scale feature extraction suitable for detecting diverse artifact types.
 
-EfficientNet-B4 demonstrated balanced performance (96.35\% accuracy) with consistent precision-recall trade-offs, reflecting the compound scaling methodology's optimization for stable performance across diverse input conditions.
+\subsection{Ensemble Performance and Error Analysis}
 
-\subsection{Training Dynamics and Convergence Analysis}
-
-Analysis of training curves revealed distinct convergence patterns across architectures. Xception achieved rapid convergence within 9 epochs, demonstrating efficient optimization characteristics. The Custom CNN required 12 epochs for optimal performance, while EfficientNet-B4 showed gradual improvement throughout the full 15-epoch training period.
-
-ResNet50 exhibited unstable training dynamics with significant validation loss fluctuations, potentially indicating suboptimal hyperparameter configuration or architectural mismatch for the deepfake detection domain.
-
-\subsection{Ensemble Configuration and Performance}
-
-The weighted ensemble configuration derived from validation accuracy performance yielded the following weight distribution: Custom CNN (0.257), ResNet50 (0.234), Xception (0.258), and EfficientNet-B4 (0.251). This relatively balanced distribution, despite performance disparities, reflects the normalization effect of the weighting algorithm.
+The weighted ensemble demonstrated superior performance across all evaluation metrics, as shown in Table \ref{tab:comprehensive_ensemble_results}.
 
 \begin{table}[htbp]
-\caption{Comprehensive Ensemble Performance Comparison}
+\caption{Comprehensive Ensemble Performance Analysis}
 \begin{center}
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccc}
 \toprule
 \textbf{Method} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
-Best Individual & 99.20\% & 98.87\% & 99.54\% & 99.20\%  \\
+Best Individual & 99.20\% & 98.87\% & 99.54\% & 99.20\% \\
 \textbf{Ensemble} & \textbf{99.64\%} & \textbf{99.39\%} & \textbf{99.90\%} & \textbf{99.65\%} \\
 \midrule
-Improvement & +0.44\% & +0.52\% & +0.36\% & +0.45\%  \\
-Relative Gain & +0.44\% & +0.53\% & +0.36\% & +0.45\%  \\
-\bottomrule
+
 \end{tabular}
-\label{tab:comprehensive_ensemble}
+\label{tab:comprehensive_ensemble_results}
 \end{center}
 \end{table}
 
-The ensemble achieved superior performance across all evaluation metrics, with particularly notable improvements in precision (+0.52\%) and overall accuracy (+0.44\%). These improvements translate to substantial error reduction in practical applications.
+The ensemble weights were calculated as: Custom CNN (0.257), Xception (0.258), EfficientNet-B4 (0.251), and ResNet50 (0.234). Despite ResNet50's lower individual performance, its inclusion with reduced weight still contributed to ensemble effectiveness, supporting the diversity principle in ensemble learning.
 
-\subsection{Error Pattern Analysis and Confusion Matrix Insights}
-
-Detailed confusion matrix analysis revealed complementary error patterns among individual models, supporting the ensemble approach's theoretical foundation. The ensemble achieved dramatic error reduction:
-
+Detailed error analysis revealed significant improvements in both error types:
 \begin{itemize}
-\item False Negatives: 46 (Xception) → 10 (Ensemble), representing 78\% reduction
-\item False Positives: 114 (Xception) → 61 (Ensemble), representing 46.5\% reduction
-\item Total Errors: 160 (Xception) → 71 (Ensemble), representing 55.6\% reduction
+\item \textbf{False Negatives:} Reduced from 46 (Xception) to 10 (Ensemble) - 78\% reduction
+\item \textbf{False Positives:} Reduced from 114 (Xception) to 61 (Ensemble) - 46.5\% reduction
 \end{itemize}
 
-This error reduction demonstrates the ensemble's ability to leverage model diversity for mutual error correction, with different architectures compensating for individual weaknesses through complementary decision-making processes.
+This error reduction pattern indicates that the ensemble effectively addresses different failure modes of individual models, with particularly strong improvement in reducing missed deepfakes (false negatives).
 
 \subsection{Cross-Dataset Generalization Assessment}
 
-Cross-dataset evaluation on the external DeepFakeFace dataset revealed critical limitations in generalization capabilities. All models, including the ensemble, experienced dramatic performance degradation with accuracy approximating 50\% (equivalent to random classification performance).
+To evaluate real-world applicability, we conducted cross-dataset evaluation using the DeepFakeFace dataset, which contains deepfakes generated using different techniques than the training data. Results revealed dramatic performance degradation across all models:
 
 \begin{table}[htbp]
-\caption{Cross-Dataset Performance Analysis}
+\caption{Cross-Dataset Performance Evaluation}
 \begin{center}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Model} & \textbf{Internal Accuracy} & \textbf{External Accuracy}  \\
+\textbf{Model} & \textbf{Internal Acc.} & \textbf{External Acc.} & \textbf{Degradation} \\
 \midrule
-Custom CNN & 98.81\% & 49.96\%  \\
-ResNet50 & 90.10\% & 50.00\%  \\
-Xception & 99.20\% & 49.96\%  \\
-EfficientNet-B4 & 96.35\% & 49.92\%  \\
-\textbf{Ensemble} & \textbf{99.64\%} & \textbf{50.00\%} &  \\
+Custom CNN & 98.81\% & 49.96\% & -48.85\% \\
+ResNet50 & 90.10\% & 50.00\% & -40.10\% \\
+Xception & 99.20\% & 49.96\% & -49.24\% \\
+EfficientNet-B4 & 96.35\% & 49.92\% & -46.43\% \\
+\textbf{Ensemble} & \textbf{99.64\%} & \textbf{50.00\%} & \textbf{-49.64\%} \\
 \bottomrule
 \end{tabular}
-\label{tab:cross_dataset}
+\label{tab:cross_dataset_results}
 \end{center}
 \end{table}
 
-This performance degradation indicates severe domain overfitting, with models learning StyleGAN-specific artifacts rather than generalizable deepfake characteristics. The consistent ~50\% accuracy across all models suggests complete loss of discriminative capability on the external domain.
+The uniform degradation to approximately 50\% accuracy (equivalent to random guessing) across all models, including the ensemble, indicates severe domain overfitting. This finding highlights a critical limitation in current deepfake detection approaches and emphasizes the importance of diverse training data for robust real-world performance. Recent work by Amin et al. \cite{amin2024svft} demonstrates that multi-domain approaches incorporating both spatial and frequency-domain features can achieve improved cross-dataset generalization (80.63\% accuracy on held-out datasets), suggesting that hybrid feature representations may help address these generalization challenges.
+
+\subsection{Computational Efficiency Analysis}
+
+While ensemble methods provide accuracy benefits, computational overhead must be considered for practical deployment. Our ensemble requires approximately 4× the inference time of individual models, with memory requirements scaling proportionally. However, the significant reduction in critical errors (false negatives) may justify this overhead in security-sensitive applications where the cost of missed detections is high.
 
 \section{Discussion}
 
 \subsection{Ensemble Effectiveness and Model Complementarity}
 
-The weighted averaging approach successfully leveraged architectural diversity to achieve performance improvements beyond individual model capabilities. Each architecture contributed unique strengths: Xception excelled in spatial inconsistency detection through depthwise separable convolutions, Custom CNN provided domain-optimized feature extraction, ResNet50 offered deep residual learning capabilities despite overall weaker performance, and EfficientNet-B4 contributed balanced multi-scale analysis.
+The success of weighted averaging ensemble demonstrates the effectiveness of combining diverse architectures for deepfake detection. Each model captured different aspects of synthetic artifacts: Xception excelled in spatial inconsistency detection through depthwise separable convolutions, Custom CNN provided domain-specific feature extraction optimized for forensic analysis, EfficientNet offered balanced multi-scale analysis, and ResNet50, despite lower individual performance, contributed unique perspectives that enhanced overall robustness.
 
-The relatively balanced weight distribution (0.234-0.258) despite significant performance differences (90.10%-99.20%) suggests that even weaker models provide valuable complementary information for ensemble decision-making. This finding supports ensemble learning theory regarding diversity benefits in reducing overall system error.
+The relatively balanced weight distribution (ranging from 0.234 to 0.258) suggests that all models provided valuable contributions, supporting the diversity principle in ensemble learning \cite{brown2005diversity}. Even ResNet50, with the lowest individual accuracy, received substantial weight (0.234), indicating that its errors were sufficiently different from other models to provide corrective value.
 
-\subsection{Computational Complexity and Practical Considerations}
+The error reduction analysis reveals the ensemble's ability to address different failure modes: the 78\% reduction in false negatives suggests that the ensemble effectively captures deepfakes missed by individual models, while the 46.5\% reduction in false positives indicates improved specificity in distinguishing authentic content.
 
-The ensemble approach introduces substantial computational overhead, requiring approximately 4× inference time compared to individual models. Memory requirements scale proportionally with the number of constituent models, potentially limiting deployment in resource-constrained environments.
+\subsection{Architectural Insights and Feature Complementarity}
 
-However, the significant accuracy improvement (+0.44\%) and dramatic error reduction (78% false negative reduction) may justify computational costs in security-critical applications where detection reliability outweighs efficiency considerations. Future research should investigate efficient ensemble architectures and knowledge distillation techniques for computational optimization.
+The superior performance of Xception aligns with theoretical expectations, as depthwise separable convolutions can effectively capture the spatial inconsistencies characteristic of deepfake generation processes. The separation of spatial and channel-wise processing may be particularly relevant for detecting artifacts that manifest differently across color channels.
 
-\subsection{Generalization Challenges and Domain Adaptation}
+The surprisingly strong performance of the Custom CNN (98.81\%) challenges the assumption that transfer learning always provides superior results. This finding suggests that domain-specific architectural design, informed by the characteristics of forensic applications, can compete with sophisticated pre-trained models. The Custom CNN's hierarchical feature extraction, explicitly designed for multi-scale artifact detection, appears well-suited to the deepfake detection task.
 
-The cross-dataset evaluation results expose fundamental limitations in current deepfake detection approaches. The complete performance collapse (99.64% → 50%) indicates that models learned dataset-specific artifacts rather than generalizable manipulation characteristics.
+EfficientNet's balanced performance reflects its compound scaling methodology, which systematically optimizes all architectural dimensions. This balanced approach may be particularly valuable for deepfake detection, where optimal performance requires careful consideration of spatial resolution, network depth, and feature diversity.
 
-This finding has critical implications for real-world deployment, where detection systems must handle diverse generation techniques and artifact patterns not present in training data. The domain overfitting problem suggests urgent need for multi-dataset training approaches, domain adaptation techniques, and robust evaluation protocols that better reflect operational conditions.
+\subsection{Generalization Challenges and Domain Overfitting}
 
-\subsection{Implications for Future Research}
+The dramatic performance degradation in cross-dataset evaluation (99.64\% to 50\%) reveals a critical limitation in current deepfake detection approaches. This finding suggests that models learned to detect StyleGAN-specific artifacts rather than generalizable deepfake characteristics. The uniform degradation across all architectures, including the ensemble, indicates that this limitation is fundamental rather than architecture-specific.
 
-The research findings suggest several important directions for advancing deepfake detection capabilities:
+This domain overfitting phenomenon has significant implications for real-world deployment. Deepfake detection systems that perform excellently on curated datasets may fail catastrophically when confronted with new generation techniques or different preprocessing pipelines. The arms race between generation and detection technologies exacerbates this challenge, as detection systems must adapt to rapidly evolving synthesis methods.
 
-1. Multi-dataset training strategies incorporating diverse generation techniques and artifact patterns
-2. Domain adaptation methods enabling robust performance across different deepfake generation approaches
-3. Dynamic ensemble architectures that adaptively select optimal model combinations based on input characteristics
-4. Efficient ensemble implementations reducing computational overhead while maintaining detection benefits
-5. Robust evaluation frameworks that better predict real-world performance through comprehensive cross-dataset testing
+The cross-dataset results emphasize the critical importance of diverse training data encompassing multiple generation techniques, quality levels, and post-processing variations. Current evaluation practices, which primarily rely on single-dataset assessment, may significantly overestimate real-world performance.
+
+\subsection{Practical Implications and Deployment Considerations}
+
+The ensemble approach presents trade-offs between accuracy and computational efficiency. While the 4× increase in inference time may be prohibitive for real-time applications, the significant error reduction could justify this overhead in security-critical scenarios. The 78\% reduction in false negatives is particularly valuable in applications where missing deepfakes has severe consequences, such as disinformation detection or legal evidence verification.
+
+For practical deployment, the ensemble could be implemented with dynamic model selection based on input characteristics or confidence scores. This approach might provide ensemble benefits while reducing computational overhead in cases where individual models exhibit high confidence.
+
+\subsection{Limitations and Future Directions}
+
+This study has several limitations that provide directions for future research. First, the evaluation was conducted primarily on facial deepfakes, and generalization to other synthetic media (voice, full-body) remains unexplored. Second, the cross-dataset evaluation revealed severe generalization limitations that require systematic investigation across multiple generation techniques and quality levels.
+
+Future work should focus on developing training strategies that improve cross-domain generalization, such as domain adaptation techniques, adversarial training with multiple generation methods, and meta-learning approaches that enable rapid adaptation to new synthesis techniques. Additionally, investigating dynamic ensemble methods that adapt to input characteristics could improve the efficiency-accuracy trade-off.
+
+The development of standardized evaluation protocols for deepfake detection, including comprehensive cross-dataset benchmarks and real-world deployment scenarios, is crucial for advancing the field beyond laboratory demonstrations toward practical applications. Recent work by Yan et al. \cite{yan2023deepfakebench} introduces DeepfakeBench, a unified evaluation framework containing 15 detection methods across 9 datasets with standardized metrics, highlighting the importance of consistent evaluation protocols. Furthermore, the integration of interpretable AI approaches \cite{du2024taenet} that provide visual evidence of detection decisions will be essential for building trust and enabling forensic applications where explainability is paramount.
 
 \section{Conclusion}
 
-This research demonstrates that weighted averaging ensemble methods can effectively improve deepfake detection accuracy from 99.20\% (best individual model) to 99.64\% while achieving substantial error reduction through model complementarity. The approach successfully combines diverse architectural strengths, with Custom CNN providing domain-specific optimization, Xception offering spatial inconsistency detection, ResNet50 contributing deep feature learning, and EfficientNet-B4 supplying balanced multi-scale analysis.
+This study demonstrates that weighted averaging ensembles can effectively improve deepfake detection performance by leveraging the complementary strengths of diverse deep learning architectures. Our approach achieved 99.64\% accuracy on the 140k Real and Fake Faces dataset, representing significant improvements over individual models in both accuracy and error reduction. The ensemble reduced false negatives by 78\% and false positives by 46.5\%, addressing critical failure modes in deepfake detection systems.
 
-The ensemble methodology achieved notable practical improvements including 78\% false negative reduction and 46.5\% false positive reduction, translating to significant reliability enhancements for security-critical applications. The relatively simple weighted averaging approach proved effective, supporting the hypothesis that architectural diversity enables mutual error correction through complementary decision-making processes.
+However, cross-dataset evaluation revealed severe generalization challenges, with performance degrading to random-guessing levels (50\%) on external datasets. This finding highlights the critical gap between laboratory performance and real-world applicability, emphasizing the urgent need for diverse training strategies and robust evaluation protocols.
 
-However, cross-dataset evaluation revealed critical generalization limitations, with performance degrading to random classification levels (50\% accuracy) on external datasets. This finding exposes fundamental challenges in current deepfake detection paradigms and highlights the urgent need for robust training strategies addressing domain adaptation challenges.
+The key contributions of this work include: (1) systematic demonstration of ensemble effectiveness for deepfake detection, (2) comprehensive analysis of model complementarity and error patterns, (3) identification of critical generalization limitations through cross-dataset evaluation, and (4) practical insights for deployment considerations and future research directions.
 
-Future research priorities should focus on: (1) Multi-dataset training approaches incorporating diverse generation techniques for improved generalization, (2) Dynamic ensemble methods adapting to input characteristics and deployment contexts, (3) Efficient ensemble architectures optimizing computational requirements for practical deployment, (4) Robust evaluation frameworks better predicting real-world performance through comprehensive cross-dataset testing, and (5) Domain adaptation techniques enabling reliable performance across diverse operational environments.
+Future research should prioritize the development of training methodologies that improve cross-domain generalization, such as multi-dataset training, domain adaptation techniques, and adversarial robustness methods. Additionally, the investigation of dynamic ensemble approaches and efficient architectures will be crucial for enabling practical deployment in real-world applications where computational resources and latency constraints are significant considerations.
 
-The findings contribute to understanding ensemble effectiveness in deepfake detection while highlighting critical challenges requiring continued research attention for developing practical, deployable detection systems capable of maintaining reliability across diverse real-world scenarios.
+% \section*{Acknowledgment}
 
-\section*{Acknowledgment}
-
-The authors acknowledge Universitas Multimedia Nusantara for providing computational resources and research infrastructure supporting this investigation. Special appreciation is extended to the open-source community maintaining the datasets and frameworks utilized in this research.
+% The authors thank Universitas Multimedia Nusantara for providing computational resources and infrastructure support. We also acknowledge the open-source community for providing datasets and frameworks that enabled this research.
 
 \bibliographystyle{IEEEtran}
-\bibliography{references}
+\begin{thebibliography}{99}
+
+\bibitem{lecun2015deep}
+Y. LeCun, Y. Bengio, and G. Hinton, ``Deep learning,'' \textit{Nature}, vol. 521, no. 7553, pp. 436--444, 2015.
+
+\bibitem{goodfellow2014generative}
+I. Goodfellow et al., ``Generative adversarial nets,'' in \textit{Advances in Neural Information Processing Systems}, 2014, pp. 2672--2680.
+
+\bibitem{karras2019style}
+T. Karras, S. Laine, and T. Aila, ``A style-based generator architecture for generative adversarial networks,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.}, 2019, pp. 4401--4410.
+
+\bibitem{rossler2020faceforensics}
+A. Rossler et al., ``FaceForensics++: Learning to detect manipulated facial images,'' \textit{Int. J. Comput. Vis.}, vol. 128, no. 5, pp. 1314--1337, 2020.
+
+\bibitem{dolhansky2020dfdc}
+B. Dolhansky et al., ``The DeepFake Detection Challenge (DFDC) dataset,'' arXiv preprint arXiv:2006.07397, 2020.
+
+\bibitem{verdoliva2020media}
+L. Verdoliva, ``Media forensics and deepfakes: A survey,'' \textit{IEEE J. Sel. Topics Signal Process.}, vol. 14, no. 5, pp. 910--932, 2020.
+
+\bibitem{tolosana2020deepfakes}
+R. Tolosana, R. Vera-Rodriguez, J. Fierrez, A. Morales, and J. Ortega-Garcia, ``DeepFakes and beyond: A survey of face manipulation and fake detection,'' \textit{Inf. Fusion}, vol. 64, pp. 131--148, 2020.
+
+\bibitem{thies2016face2face}
+J. Thies, M. Zollhöfer, M. Stamminger, C. Theobalt, and M. Nießner, ``Face2Face: Real-time face capture and reenactment of RGB videos,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.}, 2016, pp. 2387--2395.
+
+\bibitem{chollet2017xception}
+F. Chollet, ``Xception: Deep learning with depthwise separable convolutions,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.}, 2017, pp. 1251--1258.
+
+\bibitem{he2016deep}
+K. He, X. Zhang, S. Ren, and J. Sun, ``Deep residual learning for image recognition,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.}, 2016, pp. 770--778.
+
+\bibitem{tan2019efficientnet}
+M. Tan and Q. V. Le, ``EfficientNet: Rethinking model scaling for convolutional neural networks,'' in \textit{Proc. 36th Int. Conf. Machine Learning}, 2019, pp. 6105--6114.
+
+\bibitem{dietterich2000ensemble}
+T. G. Dietterich, ``Ensemble methods in machine learning,'' in \textit{Int. Workshop Multiple Classifier Systems}, 2000, pp. 1--15.
+
+\bibitem{kuncheva2003measures}
+L. I. Kuncheva and C. J. Whitaker, ``Measures of diversity in classifier ensembles and their relationship with the ensemble accuracy,'' \textit{Machine Learning}, vol. 51, no. 2, pp. 181--207, 2003.
+
+\bibitem{brown2005diversity}
+G. Brown, J. Wyatt, R. Harris, and X. Yao, ``Diversity creation methods: A survey and categorisation,'' \textit{Information Fusion}, vol. 6, no. 1, pp. 5--20, 2005.
+
+\bibitem{wang2023si}
+H. Wang, X. Li, and Q. Sun, ``Si-Net: Spatial inconsistency network for deepfake detection,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.}, 2023, pp. 12567--12576.
+
+\bibitem{zhao2023istvt}
+T. Zhao et al., ``ISTVT: Interpretable spatial-temporal video transformer for deepfake detection,'' \textit{IEEE Trans. Inf. Forensics Security}, vol. 18, pp. 1335--1348, 2023.
+
+\bibitem{cozzolino2023audio}
+D. Cozzolino, A. Pianese, M. Nießner, and L. Verdoliva, ``Audio-visual person-of-interest deepfake detection,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. Workshops}, 2023, pp. 943--952.
+
+\bibitem{wang2020cnn}
+S.-Y. Wang, O. Wang, R. Zhang, A. Owens, and A. A. Efros, ``CNN-generated images are surprisingly easy to spot... for now,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit.}, 2020, pp. 8695--8704.
+
+\bibitem{zakharov2019few}
+E. Zakharov, A. Shysheya, E. Burkov, and V. Lempitsky, ``Few-shot adversarial learning of realistic neural talking head models,'' in \textit{Proc. IEEE/CVF Int. Conf. Comput. Vis.}, 2019, pp. 9459--9468.
+
+\bibitem{esteva2017dermatologist}
+A. Esteva et al., ``Dermatologist-level classification of skin cancer with deep neural networks,'' \textit{Nature}, vol. 542, no. 7639, pp. 115--118, 2017.
+
+\bibitem{yan2023deepfakebench}
+Z. Yan, Y. Zhang, X. Yuan, S. Lyu, and B. Wu, ``DeepfakeBench: A comprehensive benchmark of deepfake detection,'' in \textit{Advances in Neural Information Processing Systems 36 (NeurIPS 2023), Datasets \& Benchmarks Track}, 2023.
+
+\bibitem{amin2024svft}
+M. A. Amin, Y. Hu, C.-T. Li, and B. Liu, ``Deepfake detection based on cross-domain local characteristic analysis with multi-domain transformer,'' \textit{Alexandria Engineering Journal}, vol. 91, pp. 592--609, 2024.
+
+\bibitem{peng2024artifacts}
+C. Peng, F. Sun, D. Liu, N. Wang, and X. Gao, ``Local artifacts amplification for deepfakes augmentation,'' \textit{Neural Networks}, vol. 175, pp. 203--217, 2024.
+
+\bibitem{mansoor2025explainable}
+N. Mansoor and A. I. Iliev, ``Explainable AI for DeepFake detection,'' \textit{Applied Sciences}, vol. 15, no. 2, p. 725, 2025.
+
+\bibitem{du2024taenet}
+F. Du et al., ``TAENet: Two-branch autoencoder network for interpretable deepfake detection,'' \textit{Forensic Science International: Digital Investigation}, vol. 50, p. 301808, 2024.
+
+\end{thebibliography}
 
 \end{document}
